@@ -11,19 +11,19 @@ class CatalogView(ListView):
     
     def get_queryset(self):
         queryset = super().get_queryset()
-        categoty_slugs = self.request.GET.getlist('category')
+        category_slugs = self.request.GET.getlist('category')
         size_names = self.request.GET.getlist('size')
         min_price = self.request.GET.get('min_price')
         max_price = self.request.GET.get('max_price')
         
-        if categoty_slugs:
-            queryset = queryset.filter(category__slug__in=categoty_slugs)
+        if category_slugs:
+            queryset = queryset.filter(category__slug__in=category_slugs)
             
             
         if size_names:
             queryset = queryset.filter(
                 Q(sizes__name__in=size_names) & Q(sizes__clothingitemsize__available=True)
-            )
+            ).distinct()
             
         if min_price:
             queryset = queryset.filter(price__gte=min_price)
@@ -44,13 +44,9 @@ class CatalogView(ListView):
         
         return context
     
-    class ClothingItemDetailView(DeleteView):
-        model = ClothingItem
-        template_name = 'main/product/detail.html'
-        context_object_name = 'clothing_object_item'
-        slug_field = 'slug'
-        slug_url_kwarg = 'slug'
-        
-        
-        
-    
+class ClothingItemDetailView(DeleteView):
+    model = ClothingItem
+    template_name = 'main/product/detail.html'
+    context_object_name = 'clothing_object_item'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
